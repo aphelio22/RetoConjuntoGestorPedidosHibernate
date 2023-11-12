@@ -19,9 +19,14 @@ public class UsuarioDAO implements DAO<Usuario> {
         return salida;
     }
 
+    //En el PedidosUsuarioController estás llamando a este método.
     @Override
     public Usuario get(Integer id) {
-        return null;
+        var salida = new Usuario();
+        try(Session session = HibernateUtil.getSessionFactory().openSession()){
+            salida = session.get(Usuario.class, id);
+        }
+        return salida;
     }
 
     @Override

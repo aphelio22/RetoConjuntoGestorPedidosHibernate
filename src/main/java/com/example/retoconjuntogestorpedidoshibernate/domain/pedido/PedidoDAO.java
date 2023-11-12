@@ -3,6 +3,7 @@ package com.example.retoconjuntogestorpedidoshibernate.domain.pedido;
 import com.example.retoconjuntogestorpedidoshibernate.domain.DAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
+import com.example.retoconjuntogestorpedidoshibernate.domain.usuario.Usuario;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -21,7 +22,11 @@ public class PedidoDAO implements DAO<Pedido> {
 
     @Override
     public Pedido get(Integer id) {
-        return null;
+        var salida = new Pedido();
+        try(Session session = HibernateUtil.getSessionFactory().openSession()){
+            salida = session.get(Pedido.class, id);
+        }
+        return salida;
     }
 
     @Override

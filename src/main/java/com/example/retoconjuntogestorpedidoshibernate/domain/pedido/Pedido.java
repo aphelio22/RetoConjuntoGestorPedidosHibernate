@@ -25,9 +25,21 @@ public class Pedido implements Serializable {
     private Integer total;
 
     @ManyToOne
-    @JoinColumn(name = "usuario")
+    @JoinColumn(name = "usuario", referencedColumnName = "id")
     private Usuario usuario;
 
-    @Transient
+    @OneToMany(mappedBy = "codigo_pedido", fetch = FetchType.EAGER)
     private List<Item> items = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Pedido{" +
+                "id=" + id +
+                ", codigo_pedido='" + codigo_pedido + '\'' +
+                ", fecha='" + fecha + '\'' +
+                ", total=" + total +
+                ", usuario=" + usuario.getId() +
+                ", items=" + items +
+                '}';
+    }
 }

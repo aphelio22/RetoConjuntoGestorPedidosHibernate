@@ -30,7 +30,7 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        HibernateUtil.getSessionFactory();
+
     }
 
     @FXML
@@ -42,12 +42,14 @@ public class LoginController implements Initializable {
         if (usuario == null){
             System.out.println("Mal usuario");
         } else {
-            Sesion.setUsuario(usuario);
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("¡Hola!");
             alert.setHeaderText("Inicio correcto");
             alert.setContentText("Bienvenid@, " + usuario.getNombre() + ".");
             alert.showAndWait();
+            Sesion.setUsuario(usuario);
+            HelloApplication.loadFXMLUsuario("pedidosUsuario-controller.fxml");
+
         }
     }
 }

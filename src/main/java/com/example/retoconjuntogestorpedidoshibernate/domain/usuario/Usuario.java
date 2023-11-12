@@ -25,16 +25,5 @@ public class Usuario implements Serializable {
 
     //Cuidado esto tiene que ser paralelo al campo usuario de la tabla.
     @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
-    private List<Pedido> pedidos = new ArrayList<>();
-
-    @Override
-    public String toString() {
-        return "Usuario{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", contrasenha='" + contrasenha + '\'' +
-                ", email='" + email + '\'' +
-                ", pedidos=" + pedidos +
-                '}';
-    }
+    private List<Pedido> pedidos = new ArrayList<>(0);
 }
