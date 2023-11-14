@@ -4,6 +4,8 @@ package com.example.retoconjuntogestorpedidoshibernate.controllers;
 
 import com.example.retoconjuntogestorpedidoshibernate.HelloApplication;
 import com.example.retoconjuntogestorpedidoshibernate.Sesion;
+import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
+import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.usuario.Usuario;
@@ -16,8 +18,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 /**
@@ -40,6 +45,7 @@ public class PedidosUsuarioController implements Initializable {
     @javafx.fxml.FXML
     private TableColumn<Pedido, String> cTotal;
     private ObservableList<Pedido> observableList;
+    private PedidoDAO pedidoDAO = new PedidoDAO();
 
 
 
@@ -69,9 +75,8 @@ public class PedidosUsuarioController implements Initializable {
         observableList = FXCollections.observableArrayList();
 
         Sesion.setUsuario((new UsuarioDAO()).get(Sesion.getUsuario().getId()));
-        observableList.setAll(Sesion.getUsuario().getPedidos());
 
-        tvPedidos.setItems(observableList);
+        cargarLista();
 
         lbUsuario.setText("Bienvenid@: " + Sesion.getUsuario().getNombre());
 
@@ -82,13 +87,32 @@ public class PedidosUsuarioController implements Initializable {
 
 
     }
-    @javafx.fxml.FXML
+
+    private void cargarLista() {
+        observableList.setAll(Sesion.getUsuario().getPedidos());
+
+        for (Pedido pedido : observableList) {
+            Integer totalPedido = calcularTotalPedido(pedido);
+            pedido.setTotal(totalPedido);
+        }
+        tvPedidos.setItems(observableList);
+    }
+
+    private Double calcularTotalPedido(Pedido pedido) {
+        Double total  = 0.0;
+
+        for (Item item : pedido.getItems()){
+            total += item.getProducto().getPrecio() * item.getCantidad();
+        }
+    }
+
+    @Deprecated
     public void logOut(ActionEvent actionEvent) {
         Sesion.setUsuario(null);
         HelloApplication.loadFXMLLogin("login-controller.fxml");
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void mostrarAcercaDe(ActionEvent actionEvent) {
         // Muestra información "Acerca de" en una ventana de diálogo.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -96,5 +120,55 @@ public class PedidosUsuarioController implements Initializable {
         alert.setHeaderText("Creado por: ");
         alert.setContentText("Jorge Alarcón Navarro, 2ºDAM");
         alert.showAndWait();
+    }
+
+    @javafx.fxml.FXML
+    public void anhadir(ActionEvent actionEvent) {
+        Pedido nuevoPedido = new Pedido();
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Obtener el último código de pedido
+            Query<String> query = session.createQuery("select max(p.codigo_pedido) from Pedido p", String.class);
+            String ultimoCodigoPedido = query.uniqueResult();
+
+            // Incrementar el último código de pedido
+            int ultimoNumero = Integer.parseInt(ultimoCodigoPedido.substring(4));
+            int nuevoNumero = ultimoNumero + 1;
+            String nuevoCodigoPedido = "PED-" + String.format("%03d", nuevoNumero);
+
+            // Establecer el nuevo código de pedido en el pedido
+            nuevoPedido.setCodigo_pedido(nuevoCodigoPedido);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Establecer la fecha actual por defecto
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaActual = dateFormat.format(new Date());
+        nuevoPedido.setFecha(fechaActual);
+
+        nuevoPedido.setUsuario(Sesion.getUsuario());
+        nuevoPedido.setId(0);
+        nuevoPedido.setTotal(0);
+
+        // Agregar el nuevo pedido a la lista observable
+        observableList.add(nuevoPedido);
+
+        // Actualizar la tabla
+        tvPedidos.setItems(observableList);
+        Sesion.setPedido((new PedidoDAO()).save(nuevoPedido));
+    }
+
+    @javafx.fxml.FXML
+    public void eliminar(ActionEvent actionEvent) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setContentText("¿Deseas borrar el pedido: " + Sesion.getPedido().getCodigo_pedido() + "?");
+        var result = alert.showAndWait().get();
+
+        if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+            pedidoDAO.delete(Sesion.getPedido());
+            cargarLista();
+
+        }
     }
 }

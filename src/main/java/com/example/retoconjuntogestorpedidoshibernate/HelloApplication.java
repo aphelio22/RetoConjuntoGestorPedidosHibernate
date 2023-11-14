@@ -41,7 +41,7 @@ public class HelloApplication extends Application {
     public static void loadFXMLUsuario(String ruta) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(ruta));
-            Scene scene = new Scene(fxmlLoader.load(), 858, 625);
+            Scene scene = new Scene(fxmlLoader.load(), 858, 650);
             myStage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException(e);

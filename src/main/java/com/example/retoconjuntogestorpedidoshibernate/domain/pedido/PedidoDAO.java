@@ -5,9 +5,12 @@ import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
 import com.example.retoconjuntogestorpedidoshibernate.domain.usuario.Usuario;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PedidoDAO implements DAO<Pedido> {
     @Override
@@ -31,7 +34,26 @@ public class PedidoDAO implements DAO<Pedido> {
 
     @Override
     public Pedido save(Pedido data) {
-        return null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction transaction = null;
+            try {
+                // Comenzar la transacción
+                transaction = session.beginTransaction();
+
+                // Guardar el nuevo pedido en la base de datos
+                session.save(data);
+
+                // Commit de la transacción
+                transaction.commit();
+            } catch (Exception e) {
+                // Manejar cualquier excepción que pueda ocurrir durante la transacción
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                e.printStackTrace();
+            }
+            return data;
+        }
     }
 
     @Override
@@ -41,6 +63,9 @@ public class PedidoDAO implements DAO<Pedido> {
 
     @Override
     public void delete(Pedido data) {
-
+        HibernateUtil.getSessionFactory().inTransaction(session -> {
+            Pedido pedido = session.get(Pedido.class, data.getId());
+            session.remove(pedido);
+        });
     }
 }
