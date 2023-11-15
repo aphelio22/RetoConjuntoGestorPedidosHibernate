@@ -64,6 +64,16 @@ public class HelloApplication extends Application {
         }
     }
 
+    public static void loadFXMLCrearProducto(String ruta) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(ruta));
+            Scene scene = new Scene(fxmlLoader.load(), 600, 427);
+            myStage.setScene(scene);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * El método loadFXMLLogin carga y muestra una nueva escena en la ventana principal, con el tamaño especificado.
      * En este caso la pantalla de Login donde el usuario podrá acceder a su sesión.

@@ -6,6 +6,7 @@ import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
 import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.ArrayList;
@@ -28,7 +29,26 @@ public class ItemDAO implements DAO<Item> {
 
     @Override
     public Item save(Item data) {
-        return null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction transaction = null;
+            try {
+                // Comenzar la transacción
+                transaction = session.beginTransaction();
+
+                // Guardar el nuevo pedido en la base de datos
+                session.save(data);
+
+                // Commit de la transacción
+                transaction.commit();
+            } catch (Exception e) {
+                // Manejar cualquier excepción que pueda ocurrir durante la transacción
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                e.printStackTrace();
+            }
+            return data;
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.hibernate.query.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 public class PedidoDAO implements DAO<Pedido> {
@@ -58,8 +59,26 @@ public class PedidoDAO implements DAO<Pedido> {
 
     @Override
     public void update(Pedido data) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
 
+        try {
+            transaction = session.beginTransaction();
+
+            // Actualizar el pedido en la base de datos
+            session.update(data);
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
+
 
     @Override
     public void delete(Pedido data) {

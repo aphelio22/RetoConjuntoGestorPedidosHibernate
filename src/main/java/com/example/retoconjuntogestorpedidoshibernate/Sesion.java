@@ -37,6 +37,14 @@ public class Sesion {
     @Setter
     private static Pedido pedido;
 
+    @Setter
+    @Getter
+    private static Item item;
+
+    @Getter
+    @Setter
+    private static Producto producto;
+
     /**
      * Lista de pedidos en la sesión.
      */

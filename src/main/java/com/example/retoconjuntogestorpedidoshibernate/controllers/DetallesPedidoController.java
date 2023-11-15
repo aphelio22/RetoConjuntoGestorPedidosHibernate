@@ -3,7 +3,9 @@ package com.example.retoconjuntogestorpedidoshibernate.controllers;
 import com.example.retoconjuntogestorpedidoshibernate.HelloApplication;
 import com.example.retoconjuntogestorpedidoshibernate.Sesion;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
+import com.example.retoconjuntogestorpedidoshibernate.domain.item.ItemDAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
+import com.example.retoconjuntogestorpedidoshibernate.domain.producto.Producto;
 import jakarta.persistence.Id;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -82,5 +84,16 @@ public class DetallesPedidoController implements Initializable {
     @Deprecated
     public void volverAtrás(ActionEvent actionEvent) {
         HelloApplication.loadFXMLUsuario("pedidosUsuario-controller.fxml");
+    }
+
+    @javafx.fxml.FXML
+    public void anhadirItem(ActionEvent actionEvent) {
+        var item = new Item();
+        Sesion.setItem(item);
+        HelloApplication.loadFXMLCrearProducto("anhadirItemController.fxml");
+    }
+
+    @javafx.fxml.FXML
+    public void eliminarItem(ActionEvent actionEvent) {
     }
 }
