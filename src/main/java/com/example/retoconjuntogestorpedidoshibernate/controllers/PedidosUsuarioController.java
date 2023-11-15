@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -82,18 +83,25 @@ public class PedidosUsuarioController implements Initializable {
 
         tvPedidos.getSelectionModel().selectedItemProperty().addListener((observableValue, pedido, t1) -> {
             Sesion.setPedido(t1);
-            HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
         });
 
-
+        tvPedidos.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                Pedido selectedPedido = tvPedidos.getSelectionModel().getSelectedItem();
+                if (selectedPedido != null) {
+                    Sesion.setPedido(selectedPedido);
+                    HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
+                }
+            }
+        });
     }
 
     private void cargarLista() {
         observableList.setAll(Sesion.getUsuario().getPedidos());
-
         for (Pedido pedido : observableList) {
-            Integer totalPedido = calcularTotalPedido(pedido);
-            pedido.setTotal(totalPedido);
+            Double totalPedido = calcularTotalPedido(pedido);
+                pedido.setTotal(totalPedido);
+
         }
         tvPedidos.setItems(observableList);
     }
@@ -104,6 +112,7 @@ public class PedidosUsuarioController implements Initializable {
         for (Item item : pedido.getItems()){
             total += item.getProducto().getPrecio() * item.getCantidad();
         }
+        return total;
     }
 
     @Deprecated
@@ -149,7 +158,10 @@ public class PedidosUsuarioController implements Initializable {
 
         nuevoPedido.setUsuario(Sesion.getUsuario());
         nuevoPedido.setId(0);
-        nuevoPedido.setTotal(0);
+
+        if (nuevoPedido.getItems().isEmpty()) {
+            nuevoPedido.setTotal(0.0);
+        }
 
         // Agregar el nuevo pedido a la lista observable
         observableList.add(nuevoPedido);
@@ -157,18 +169,27 @@ public class PedidosUsuarioController implements Initializable {
         // Actualizar la tabla
         tvPedidos.setItems(observableList);
         Sesion.setPedido((new PedidoDAO()).save(nuevoPedido));
+        Sesion.setPedido(nuevoPedido);
     }
 
     @javafx.fxml.FXML
     public void eliminar(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setContentText("¿Deseas borrar el pedido: " + Sesion.getPedido().getCodigo_pedido() + "?");
-        var result = alert.showAndWait().get();
+        Pedido pedidoSeleccionado = tvPedidos.getSelectionModel().getSelectedItem();
 
-        if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-            pedidoDAO.delete(Sesion.getPedido());
-            cargarLista();
+        if (pedidoSeleccionado != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("¿Deseas borrar el pedido: " + pedidoSeleccionado.getCodigo_pedido() + "?");
+            var result = alert.showAndWait().get();
 
+            if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                pedidoDAO.delete(pedidoSeleccionado);
+                observableList.remove(pedidoSeleccionado);
+            }
+        } else {
+            // Mostrar un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Por favor, selecciona un pedido para eliminar.");
+            alert.showAndWait();
         }
     }
 }

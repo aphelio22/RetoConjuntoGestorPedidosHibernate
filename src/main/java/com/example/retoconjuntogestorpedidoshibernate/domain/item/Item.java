@@ -20,7 +20,7 @@ public class Item implements Serializable {
     @JoinColumn(name = "codigo_pedido", referencedColumnName = "codigo_pedido")
     private Pedido codigo_pedido;
     @Column(name = "cantidad")
-    private String cantidad;
+    private Integer cantidad;
 
     @OneToOne
     @JoinColumn(name = "producto")

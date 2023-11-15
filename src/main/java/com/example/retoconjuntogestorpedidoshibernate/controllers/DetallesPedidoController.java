@@ -47,7 +47,7 @@ public class DetallesPedidoController implements Initializable {
         });
 
         cCantidad.setCellValueFactory((fila) -> {
-            String cCantidad = fila.getValue().getCantidad();
+            String cCantidad = String.valueOf(fila.getValue().getCantidad());
             return new SimpleStringProperty(cCantidad);
         });
 

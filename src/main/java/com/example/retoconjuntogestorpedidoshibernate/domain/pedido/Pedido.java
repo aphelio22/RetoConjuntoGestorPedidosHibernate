@@ -22,7 +22,7 @@ public class Pedido implements Serializable {
     @Column(name = "fecha")
     private String fecha;
     @Column(name = "total")
-    private Integer total;
+    private Double total;
 
     @ManyToOne
     @JoinColumn(name = "usuario", referencedColumnName = "id")
