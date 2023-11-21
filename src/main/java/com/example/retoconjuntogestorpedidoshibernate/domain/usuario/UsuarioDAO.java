@@ -2,7 +2,8 @@ package com.example.retoconjuntogestorpedidoshibernate.domain.usuario;
 
 import com.example.retoconjuntogestorpedidoshibernate.domain.DAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
-import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
+import com.example.retoconjuntogestorpedidoshibernate.exceptions.UsuarioInexistente;
+import jakarta.persistence.NoResultException;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -43,7 +44,7 @@ public class UsuarioDAO implements DAO<Usuario> {
     public void delete(Usuario data) {
 
     }
-    public Usuario validateUser(String username, String password){
+    public Usuario validateUser(String username, String password) throws UsuarioInexistente {
         //Desde un lambda no se puede escribir desde una variable externa.
         Usuario result = null;
 
@@ -59,9 +60,8 @@ public class UsuarioDAO implements DAO<Usuario> {
 
             try {
                 result = query.getSingleResult();
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
+            } catch (NoResultException e){
+                throw new UsuarioInexistente("Usuario inexistente");
 
             // Versión lambda
             /*
@@ -72,4 +72,5 @@ public class UsuarioDAO implements DAO<Usuario> {
         }
         return result;
     }
+}
 }

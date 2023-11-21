@@ -3,6 +3,7 @@ package com.example.retoconjuntogestorpedidoshibernate.domain.item;
 import com.example.retoconjuntogestorpedidoshibernate.Sesion;
 import com.example.retoconjuntogestorpedidoshibernate.domain.DAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
+import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
 import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -58,6 +59,9 @@ public class ItemDAO implements DAO<Item> {
 
     @Override
     public void delete(Item data) {
-
+        HibernateUtil.getSessionFactory().inTransaction(session -> {
+            Item item = session.get(Item.class, data.getId());
+            session.remove(item);
+        });
     }
 }

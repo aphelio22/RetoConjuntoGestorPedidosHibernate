@@ -170,6 +170,16 @@ public class PedidosUsuarioController implements Initializable {
         tvPedidos.setItems(observableList);
         Sesion.setPedido((new PedidoDAO()).save(nuevoPedido));
         Sesion.setPedido(nuevoPedido);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("¡Éxito!");
+        alert.setHeaderText("Tu pedido ha sido creado");
+        alert.setContentText("Código de pedido: " + Sesion.getPedido().getCodigo_pedido());
+        alert.showAndWait();
+
+        HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
+
+
     }
 
     @javafx.fxml.FXML

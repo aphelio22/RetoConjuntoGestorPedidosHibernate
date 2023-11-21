@@ -4,6 +4,7 @@ import com.example.retoconjuntogestorpedidoshibernate.HelloApplication;
 import com.example.retoconjuntogestorpedidoshibernate.Sesion;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.ItemDAO;
+import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.producto.Producto;
 import jakarta.persistence.Id;
@@ -12,10 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,6 +32,7 @@ public class DetallesPedidoController implements Initializable {
     private TableColumn<Item, String> cProducto;
     @javafx.fxml.FXML
     private Label lbPrueba;
+    private ItemDAO itemDAO = new ItemDAO();
     private ObservableList<Item> observableList;
 
     @Override
@@ -65,6 +64,7 @@ public class DetallesPedidoController implements Initializable {
 
         tvItem.setItems(observableList);
 
+        lbPrueba.setText("Items del pedido: " + Sesion.getPedido().getCodigo_pedido());
     }
 
     @Deprecated
@@ -90,10 +90,27 @@ public class DetallesPedidoController implements Initializable {
     public void anhadirItem(ActionEvent actionEvent) {
         var item = new Item();
         Sesion.setItem(item);
-        HelloApplication.loadFXMLCrearProducto("anhadirItemController.fxml");
+        HelloApplication.loadFXMLCrearProducto("anhadirItem-controller.fxml");
     }
 
     @javafx.fxml.FXML
     public void eliminarItem(ActionEvent actionEvent) {
+        Item itemSeleccionado = tvItem.getSelectionModel().getSelectedItem();
+
+        if (itemSeleccionado != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("¿Deseas borrar el item: " + itemSeleccionado.getId() + ", que contiene el producto: " + itemSeleccionado.getProducto().getNombre() + "?");
+            var result = alert.showAndWait().get();
+
+            if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                itemDAO.delete(itemSeleccionado);
+                observableList.remove(itemSeleccionado);
+            }
+        } else {
+            // Mostrar un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Por favor, selecciona un pedido para eliminar.");
+            alert.showAndWait();
+        }
     }
 }
