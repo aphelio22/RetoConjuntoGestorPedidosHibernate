@@ -34,10 +34,11 @@ public class AnhadirItemController implements Initializable {
         ProductoDAO productoDAO = new ProductoDAO();
         observableListProductos.setAll(productoDAO.getAll());
         comboProducto.setItems(observableListProductos);
+        comboProducto.getSelectionModel().selectFirst();
         spCantidad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1, 1));
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void aceptar(ActionEvent actionEvent) {
         Pedido pedido = Sesion.getPedido();
         if (pedido != null) {
@@ -52,13 +53,13 @@ public class AnhadirItemController implements Initializable {
         }
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void logOut(ActionEvent actionEvent) {
         Sesion.setUsuario(null);
         HelloApplication.loadFXMLLogin("login-controller.fxml");
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void mostrarAcercaDe(ActionEvent actionEvent) {
         // Muestra información "Acerca de" en una ventana de diálogo.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -68,7 +69,7 @@ public class AnhadirItemController implements Initializable {
         alert.showAndWait();
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void volverAtrás(ActionEvent actionEvent) {
         HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
     }

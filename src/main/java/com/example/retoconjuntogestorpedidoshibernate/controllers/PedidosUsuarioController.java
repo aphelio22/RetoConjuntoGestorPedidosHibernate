@@ -131,7 +131,7 @@ public class PedidosUsuarioController implements Initializable {
         alert.showAndWait();
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void anhadir(ActionEvent actionEvent) {
         Pedido nuevoPedido = new Pedido();
 
@@ -182,7 +182,7 @@ public class PedidosUsuarioController implements Initializable {
 
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void eliminar(ActionEvent actionEvent) {
         Pedido pedidoSeleccionado = tvPedidos.getSelectionModel().getSelectedItem();
 

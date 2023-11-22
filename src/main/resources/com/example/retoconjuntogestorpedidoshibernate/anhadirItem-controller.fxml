@@ -9,13 +9,14 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 
 <VBox id="contenedor" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.retoconjuntogestorpedidoshibernate.controllers.AnhadirItemController">
    <children>
@@ -55,13 +56,13 @@
                <children>
                   <VBox alignment="CENTER">
                      <children>
-                        <Label id="labelSeleccionCantidad" text="Selecciona una cantidad:" />
+                        <Label id="labelSeleccionCantidad" text="Seleccione una cantidad:" />
                         <Spinner fx:id="spCantidad" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" GridPane.columnIndex="1">
                      <children>
-                        <Label id="labelSeleccionProducto" text="Selecciona un producto:" />
+                        <Label id="labelSeleccionProducto" text="Seleccione un producto:" />
                         <ComboBox fx:id="comboProducto" prefWidth="150.0" />
                      </children>
                   </VBox>
@@ -73,6 +74,13 @@
                <BorderPane.margin>
                   <Insets bottom="10.0" />
                </BorderPane.margin>
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../images/aceptar.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
             </Button>
          </bottom>
       </BorderPane>

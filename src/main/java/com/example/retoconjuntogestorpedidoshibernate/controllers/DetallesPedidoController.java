@@ -86,14 +86,14 @@ public class DetallesPedidoController implements Initializable {
         HelloApplication.loadFXMLUsuario("pedidosUsuario-controller.fxml");
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void anhadirItem(ActionEvent actionEvent) {
         var item = new Item();
         Sesion.setItem(item);
         HelloApplication.loadFXMLCrearProducto("anhadirItem-controller.fxml");
     }
 
-    @javafx.fxml.FXML
+    @Deprecated
     public void eliminarItem(ActionEvent actionEvent) {
         Item itemSeleccionado = tvItem.getSelectionModel().getSelectedItem();
 
