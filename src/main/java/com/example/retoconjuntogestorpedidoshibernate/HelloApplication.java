@@ -66,6 +66,12 @@ public class HelloApplication extends Application {
         }
     }
 
+    /**
+     * El método loadFXMLCrearProducto carga y muestra una nueva escena en la ventana principal, con el tamaño especificado.
+     * En este caso la pantalla de AnhadirItemController donde el usuario podrá añadir nuevos items al pedido.
+     *
+     * @param ruta La ruta al archivo FXML que se cargará.
+     */
     public static void loadFXMLCrearProducto(String ruta) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(ruta));

@@ -12,31 +12,75 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controlador para la vista que muestra los detalles de un pedido y sus ítems asociados.
+ */
 public class DetallesPedidoController implements Initializable {
 
-    @javafx.fxml.FXML
+    /**
+     * Tabla en la que se muestran todos los item de un pedido.
+     */
+    @FXML
     private TableView<Item> tvItem;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el id del item de un pedido.
+     */
+    @FXML
     private TableColumn<Item, String> cIdItem;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el Código de Pedido con el que se relaciona el item.
+     */
+    @FXML
     private TableColumn<Item, String> cCPedido;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra la cantidad de un determinado producto que contiene el item de un pedido.
+     */
+    @FXML
     private TableColumn<Item, String> cCantidad;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el nombre de un determinado producto que contiene el item de un pedido.
+     */
+    @FXML
     private TableColumn<Item, String> cProducto;
-    @javafx.fxml.FXML
+
+    /**
+     * Label de bienvenida de la ventana.
+     */
+    @FXML
     private Label lbPrueba;
+
+    /**
+     * instancia de ItemDAO.
+     */
     private ItemDAO itemDAO = new ItemDAO();
+
+    /**
+     * Observable que se usará como intermediario entre la Base de Datos y la tabla de items de un pedido de la ventana.
+     */
     private ObservableList<Item> observableList;
 
+
+    /**
+     * Inicializa la vista de detalles de un pedido con todos los items que este tiene asociado.
+     *
+     * @param url            La URL de inicialización.
+     * @param resourceBundle El ResourceBundle utilizado para la inicialización.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // Configuración de las celdas de la tabla para mostrar información específica de los ítems.
         cIdItem.setCellValueFactory((fila) -> {
             String cIdItem = String.valueOf(fila.getValue().getId());
             return new SimpleStringProperty(cIdItem);
@@ -57,22 +101,38 @@ public class DetallesPedidoController implements Initializable {
             return new SimpleStringProperty(cProducto);
         });
 
+        //Declaración del Observable que servirá de intermediario.
         observableList = FXCollections.observableArrayList();
 
+        //Se llena el Observable con todos los items de un determinado pedido.
         Sesion.setPedido((new PedidoDAO()).get(Sesion.getPedido().getId()));
         observableList.setAll(Sesion.getPedido().getItems());
 
+        //Se llena la tabla con el Observable.
         tvItem.setItems(observableList);
 
+        //Se establece el label de bienvenida de la ventana.
         lbPrueba.setText("Items del pedido: " + Sesion.getPedido().getCodigo_pedido());
     }
 
-    @Deprecated
+    /**
+     * Método para cerrar la sesión actual y cargar la pantalla de inicio de sesión.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     */
+    @FXML
     public void logOut(ActionEvent actionEvent) {
+        //Se settea el usuario actual a null y vuelve al LoginController.
         Sesion.setUsuario(null);
         HelloApplication.loadFXMLLogin("login-controller.fxml");
     }
-    @Deprecated
+
+    /**
+     * Método para mostrar información "Acerca de".
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     */
+    @FXML
     public void mostrarAcercaDe(ActionEvent actionEvent) {
         // Muestra información "Acerca de" en una ventana de diálogo.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -81,33 +141,60 @@ public class DetallesPedidoController implements Initializable {
         alert.setContentText("Jorge Alarcón Navarro, 2ºDAM");
         alert.showAndWait();
     }
-    @Deprecated
+
+    /**
+     * Método para volver atrás.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     */
+    @FXML
     public void volverAtrás(ActionEvent actionEvent) {
+        //Vuelve a la pantalla inmediatamente anterior.
         HelloApplication.loadFXMLUsuario("pedidosUsuario-controller.fxml");
     }
 
-    @Deprecated
+    /**
+     * Método para añadir un nuevo ítem al pedido.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación de añadir un ítem.
+     */
+    @FXML
     public void anhadirItem(ActionEvent actionEvent) {
+        // Crea un nuevo ítem.
         var item = new Item();
+
+        // Establece el ítem recién creado en la sesión actual para su posterior uso.
         Sesion.setItem(item);
+
+        //Lleva a la pantalla de AnhadirItemController.
         HelloApplication.loadFXMLCrearProducto("anhadirItem-controller.fxml");
     }
 
-    @Deprecated
+    /**
+     * Método para eliminar un ítem seleccionado del pedido.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     *                    Si no se selecciona un ítem, se muestra un mensaje de advertencia.
+     */
+    @FXML
     public void eliminarItem(ActionEvent actionEvent) {
+
+        //Se coge el item seleccionado.
         Item itemSeleccionado = tvItem.getSelectionModel().getSelectedItem();
 
+        //Confirmación de eliminación mediante un diálogo de confirmación.
         if (itemSeleccionado != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setContentText("¿Deseas borrar el item: " + itemSeleccionado.getId() + ", que contiene el producto: " + itemSeleccionado.getProducto().getNombre() + "?");
             var result = alert.showAndWait().get();
 
+            //Si se confirma la eliminación, se borra el ítem seleccionado de la lista y de la base de datos.
             if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 itemDAO.delete(itemSeleccionado);
                 observableList.remove(itemSeleccionado);
             }
         } else {
-            // Mostrar un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
+            //Muestra un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("Por favor, selecciona un pedido para eliminar.");
             alert.showAndWait();

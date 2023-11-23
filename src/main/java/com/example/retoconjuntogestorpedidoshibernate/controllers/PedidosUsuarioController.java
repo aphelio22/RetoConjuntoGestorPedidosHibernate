@@ -8,50 +8,90 @@ import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
-import com.example.retoconjuntogestorpedidoshibernate.domain.usuario.Usuario;
 import com.example.retoconjuntogestorpedidoshibernate.domain.usuario.UsuarioDAO;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
 
 /**
- * La clase VentanaUsuarioController controla la lógica de la ventana de usuario.
+ * Controlador para la ventana de gestión de pedidos de usuario.
  */
 public class PedidosUsuarioController implements Initializable {
 
-    @javafx.fxml.FXML
+    /**
+     * Label de bienvenida con el nombre completo del usuario.
+     */
+    @FXML
     private Label lbUsuario;
-    @javafx.fxml.FXML
+
+    /**
+     * Tabla que muestra los pedidos de un usuario.
+     */
+    @FXML
     private TableView<Pedido> tvPedidos;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el id de los pedidos de ese usuario.
+     */
+    @FXML
     private TableColumn<Pedido, String> cIdPedido;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que muestra el código de pedido de los pedidos de ese usuario.
+     */
+    @FXML
     private TableColumn<Pedido, String> cCPedido;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra la fecha de realización del pedido.
+     */
+    @FXML
     private TableColumn<Pedido, String> cFecha;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el nombre del usuario que ha realizado el pedido
+     */
+    @FXML
     private TableColumn<Pedido, String> cUsuario;
-    @javafx.fxml.FXML
+
+    /**
+     * Columna en la que se muestra el coste total del pedido, en euros.
+     */
+    @FXML
     private TableColumn<Pedido, String> cTotal;
+
+    /**
+     * Observable que sirve de intermediario entre la Base de Datos y la tabla en la que se muestran los pedidos.
+     */
     private ObservableList<Pedido> observableList;
+
+    /**
+     * Instancia de PedidoDAO.
+     */
     private PedidoDAO pedidoDAO = new PedidoDAO();
 
 
-
+    /**
+     * Inicializa la ventana de gestión de pedidos de usuario.
+     *
+     * @param url            La URL de inicialización.
+     * @param resourceBundle El ResourceBundle utilizado para la inicialización.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // Configuración de las celdas de la tabla para mostrar información específica de los ítems.
         cIdPedido.setCellValueFactory((fila) -> {
             String id = String.valueOf(fila.getValue().getId());
             return new SimpleStringProperty(id);
@@ -73,57 +113,108 @@ public class PedidosUsuarioController implements Initializable {
             return new SimpleStringProperty(cTotal);
         });
 
+        //Declaración del Observable que servirá de intermediario.
         observableList = FXCollections.observableArrayList();
 
+        /*
+         * Actualiza el objeto de usuario almacenado en la sesión con la información más reciente de la base de datos.
+         * Obtiene el usuario actual a partir de su ID, actualiza la información del usuario en la sesión.
+         */
         Sesion.setUsuario((new UsuarioDAO()).get(Sesion.getUsuario().getId()));
 
+        //Método que carga la lista de pedidos que un usuario tiene en la tabla usando el Observable.
         cargarLista();
 
+        //Se establece el mensaje de bienvenida en el label.
         lbUsuario.setText("Bienvenid@: " + Sesion.getUsuario().getNombre());
 
+        /*
+         * Establece un listener para el evento de selección de un pedido en la tabla de pedidos.
+         * Cuando se selecciona un pedido, actualiza el pedido almacenado en la sesión.
+         */
         tvPedidos.getSelectionModel().selectedItemProperty().addListener((observableValue, pedido, t1) -> {
             Sesion.setPedido(t1);
         });
 
+        /*
+         * Establece un evento para manejar el doble clic del ratón en la tabla de pedidos.
+         * Cuando se hace doble clic en un pedido, actualiza el pedido almacenado en la sesión y carga los detalles del pedido.
+         */
         tvPedidos.setOnMouseClicked(event -> {
+            //Verifica si se ha realizado un doble clic con el botón primario del ratón.
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+
+                //Obtiene el pedido seleccionado.
                 Pedido selectedPedido = tvPedidos.getSelectionModel().getSelectedItem();
                 if (selectedPedido != null) {
+                    //Se actualiza el pedido almacenado en la sesión.
                     Sesion.setPedido(selectedPedido);
+                    //Carga los detalles del pedido en una nueva ventana.
                     HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
                 }
             }
         });
     }
 
+    /**
+     * Carga la lista de pedidos que un usuario tiene en la tabla usando el Observable.
+     */
     private void cargarLista() {
-        observableList.setAll(Sesion.getUsuario().getPedidos());
-        for (Pedido pedido : observableList) {
-            Double totalPedido = calcularTotalPedido(pedido);
-                pedido.setTotal(totalPedido);
 
+        //Obtiene la lista de pedidos del usuario actual y la asigna a la lista Observable.
+        observableList.setAll(Sesion.getUsuario().getPedidos());
+
+        //Recorre cada pedido en la lista Observable.
+        for (Pedido pedido : observableList) {
+            //Calcula el total del pedido y lo establece en el pedido actual.
+            Double totalPedido = calcularTotalPedido(pedido);
+            pedido.setTotal(totalPedido);
         }
+
+        //Establece la lista Observable como los datos a mostrar en la tabla.
         tvPedidos.setItems(observableList);
     }
 
+    /**
+     * Calcula el total del pedido basado en la cantidad de cada producto y su precio.
+     *
+     * @param pedido El pedido del cual se calculará el total.
+     * @return El total del pedido, calculado como la suma del precio de cada producto multiplicado por su cantidad.
+     */
     private Double calcularTotalPedido(Pedido pedido) {
+        //Inicializa la variable total como 0.0 para almacenar el total del pedido.
         Double total  = 0.0;
 
+        //Itera a través de los items del pedido para calcular el total.
         for (Item item : pedido.getItems()){
+
+            //Obtiene el precio del producto y lo multiplica por la cantidad, sumando al total.
             total += item.getProducto().getPrecio() * item.getCantidad();
         }
+        //Retorna el total calculado del pedido.
         return total;
     }
 
-    @Deprecated
+    /**
+     * Método para cerrar la sesión actual y cargar la pantalla de inicio de sesión.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     */
+    @FXML
     public void logOut(ActionEvent actionEvent) {
+        //Se settea el usuario actual a null y vuelve al LoginController.
         Sesion.setUsuario(null);
         HelloApplication.loadFXMLLogin("login-controller.fxml");
     }
 
-    @Deprecated
+    /**
+     * Método para mostrar información "Acerca de".
+     *
+     * @param actionEvent El evento de acción que desencadena la operación.
+     */
+    @FXML
     public void mostrarAcercaDe(ActionEvent actionEvent) {
-        // Muestra información "Acerca de" en una ventana de diálogo.
+        //Muestra información "Acerca de" en una ventana de diálogo.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Acerca de: ");
         alert.setHeaderText("Creado por: ");
@@ -131,27 +222,32 @@ public class PedidosUsuarioController implements Initializable {
         alert.showAndWait();
     }
 
-    @Deprecated
+    /**
+     * Método para agregar un nuevo pedido.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación de añadir un pedido.
+     */
+    @FXML
     public void anhadir(ActionEvent actionEvent) {
         Pedido nuevoPedido = new Pedido();
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            // Obtener el último código de pedido
+            //Obtiene el último código de pedido.
             Query<String> query = session.createQuery("select max(p.codigo_pedido) from Pedido p", String.class);
             String ultimoCodigoPedido = query.uniqueResult();
 
-            // Incrementar el último código de pedido
+            //Incrementa el último código de pedido.
             int ultimoNumero = Integer.parseInt(ultimoCodigoPedido.substring(4));
             int nuevoNumero = ultimoNumero + 1;
             String nuevoCodigoPedido = "PED-" + String.format("%03d", nuevoNumero);
 
-            // Establecer el nuevo código de pedido en el pedido
+            //Establece el nuevo código de pedido en el pedido.
             nuevoPedido.setCodigo_pedido(nuevoCodigoPedido);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Establecer la fecha actual por defecto
+        //Establece la fecha actual por defecto.
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String fechaActual = dateFormat.format(new Date());
         nuevoPedido.setFecha(fechaActual);
@@ -159,44 +255,56 @@ public class PedidosUsuarioController implements Initializable {
         nuevoPedido.setUsuario(Sesion.getUsuario());
         nuevoPedido.setId(0);
 
+        //Si el pedido no tiene items dentro el total se establece a '0.0'.
         if (nuevoPedido.getItems().isEmpty()) {
             nuevoPedido.setTotal(0.0);
         }
 
-        // Agregar el nuevo pedido a la lista observable
+        //Agrega el nuevo pedido a la lista Observable.
         observableList.add(nuevoPedido);
 
-        // Actualizar la tabla
+        //Actualiza la tabla.
         tvPedidos.setItems(observableList);
         Sesion.setPedido((new PedidoDAO()).save(nuevoPedido));
         Sesion.setPedido(nuevoPedido);
 
+        //Alerta que indica que el pedido fue creado con éxito.
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("¡Éxito!");
         alert.setHeaderText("Tu pedido ha sido creado");
         alert.setContentText("Código de pedido: " + Sesion.getPedido().getCodigo_pedido());
         alert.showAndWait();
 
+        //Después de la alerta, lleva a la ventana DetallesPedidoController del respectivo pedido.
         HelloApplication.loadFXMLDetalles("detallesPedido-controller.fxml");
 
 
     }
 
-    @Deprecated
+    /**
+     * Método para eliminar un pedido seleccionado.
+     *
+     * @param actionEvent El evento de acción que desencadena la operación de eliminar un pedido.
+     */
+    @FXML
     public void eliminar(ActionEvent actionEvent) {
+
+        //Se coge el pedido seleccionado.
         Pedido pedidoSeleccionado = tvPedidos.getSelectionModel().getSelectedItem();
 
+        //Confirmación de eliminación mediante un diálogo de confirmación.
         if (pedidoSeleccionado != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setContentText("¿Deseas borrar el pedido: " + pedidoSeleccionado.getCodigo_pedido() + "?");
             var result = alert.showAndWait().get();
 
+            //Si se confirma la eliminación, se borra el ítem seleccionado de la lista y de la base de datos.
             if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 pedidoDAO.delete(pedidoSeleccionado);
                 observableList.remove(pedidoSeleccionado);
             }
         } else {
-            // Mostrar un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
+            //Muestra un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("Por favor, selecciona un pedido para eliminar.");
             alert.showAndWait();

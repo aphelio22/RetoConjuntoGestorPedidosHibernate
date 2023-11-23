@@ -9,7 +9,17 @@ import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 
+/**
+ * Clase que implementa el acceso a datos para la entidad Usuario.
+ * Proporciona métodos para realizar operaciones en la Base de Datos relacionadas con la entidad Usuario.
+ */
 public class UsuarioDAO implements DAO<Usuario> {
+
+    /**
+     * Obtiene todos los usuarios almacenados en la Base de Datos.
+     *
+     * @return ArrayList con todos los usuarios almacenados en la Base de Datos.
+     */
     @Override
     public ArrayList<Usuario> getAll() {
         var salida = new ArrayList<Usuario>(0);
@@ -20,7 +30,12 @@ public class UsuarioDAO implements DAO<Usuario> {
         return salida;
     }
 
-    //En el PedidosUsuarioController estás llamando a este método.
+    /**
+     * Obtiene un usuario por su Id.
+     *
+     * @param id El Id del usuario que se desea obtener.
+     * @return El usuario correspondiente al Id especificado.
+     */
     @Override
     public Usuario get(Integer id) {
         var salida = new Usuario();
@@ -30,45 +45,65 @@ public class UsuarioDAO implements DAO<Usuario> {
         return salida;
     }
 
+    /**
+     * Guarda un usuario en la Base de Datos.
+     *
+     * @param data El usuario que se desea guardar en la Base de Datos.
+     * @return El usuario guardado en la Base de Datos.
+     */
     @Override
     public Usuario save(Usuario data) {
+        //Do nothing.
         return null;
     }
 
+    /**
+     * Actualiza un usuario en la Base de Datos.
+     *
+     * @param data El usuario que se desea actualizar en la Base de Datos.
+     */
     @Override
     public void update(Usuario data) {
-
+        //Do nothing.
     }
 
+    /**
+     * Elimina un usuario de la Base de Datos.
+     *
+     * @param data El usuario que se desea eliminar de la Base de Datos.
+     */
     @Override
     public void delete(Usuario data) {
-
+        //Do nothing.
     }
+
+    /**
+     * Valida la existencia de un usuario en la Base de Datos.
+     *
+     * @param username El nombre de usuario (email) que se va a validar.
+     * @param password La contraseña asociada al usuario que se va a validar.
+     * @return El objeto Usuario si se encuentra en la Base de Datos, de lo contrario, retorna null.
+     * @throws UsuarioInexistente Excepción lanzada cuando el usuario no existe en la Base de Datos.
+     */
     public Usuario validateUser(String username, String password) throws UsuarioInexistente {
-        //Desde un lambda no se puede escribir desde una variable externa.
         Usuario result = null;
 
-        //Si la sesión está dentro de un try con recursos se cierra sola.
+
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
-            //Se hacen consultas a la entidad (clase User) no a la tabla.
+            //Se crea una consulta para obtener el usuario por su nombre de usuario (email) y contraseña.
             Query<Usuario> query = session.createQuery("from Usuario where email=:u and contrasenha=:p", Usuario.class);
 
-            //Se refieren a los que entran por el método.
+            //Se establecen los parámetros de la consulta.
             query.setParameter("u", username);
             query.setParameter("p", password);
-            //
+
 
             try {
+                //Se intenta obtener un único resultado de la consulta.
                 result = query.getSingleResult();
             } catch (NoResultException e){
+                //Si no se encuentra ningún resultado, se lanza una excepción UsuarioInexistente.
                 throw new UsuarioInexistente("Usuario inexistente");
-
-            // Versión lambda
-            /*
-             * HibernateUtil.getSessionFactory().inSession( session -> {
-             *
-             * });
-             * */
         }
         return result;
     }

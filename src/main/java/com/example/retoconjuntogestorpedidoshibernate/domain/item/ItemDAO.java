@@ -1,48 +1,67 @@
 package com.example.retoconjuntogestorpedidoshibernate.domain.item;
 
-import com.example.retoconjuntogestorpedidoshibernate.Sesion;
 import com.example.retoconjuntogestorpedidoshibernate.domain.DAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.HibernateUtil;
-import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
-import org.hibernate.QueryException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 
+/**
+ * Clase que implementa el acceso a datos para la entidad Item.
+ * Proporciona métodos para realizar operaciones en la Base de Datos relacionadas con la entidad Item.
+ */
 public class ItemDAO implements DAO<Item> {
+
+    /**
+     * Obtiene todos los ítems almacenados en la Base de Datos.
+     *
+     * @return ArrayList con todos los ítems almacenados en la Base de Datos.
+     */
     @Override
     public ArrayList<Item> getAll() {
         var salida = new ArrayList<Item>(0);
-        try(Session sesion = HibernateUtil.getSessionFactory().openSession()){
+        try (Session sesion = HibernateUtil.getSessionFactory().openSession()) {
             Query<Item> query = sesion.createQuery("from Item", Item.class);
             salida = (ArrayList<Item>) query.getResultList();
         }
         return salida;
     }
 
+    /**
+     * Obtiene un ítem por su Id.
+     *
+     * @param id El Id del ítem que se desea obtener.
+     * @return El ítem correspondiente al Id especificado.
+     */
     @Override
     public Item get(Integer id) {
+        //Do nothing.
         return null;
     }
 
+    /**
+     * Guarda un ítem en la Base de Datos.
+     *
+     * @param data El ítem que se desea guardar en la Base de Datos.
+     * @return El ítem guardado en la Base de Datos.
+     */
     @Override
     public Item save(Item data) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction transaction = null;
             try {
-                // Comenzar la transacción
+                //Comienza la transacción.
                 transaction = session.beginTransaction();
 
-                // Guardar el nuevo pedido en la base de datos
+                //Guarda el nuevo ítem en la Base de Datos.
                 session.save(data);
 
-                // Commit de la transacción
+                //Commit de la transacción.
                 transaction.commit();
             } catch (Exception e) {
-                // Manejar cualquier excepción que pueda ocurrir durante la transacción
+                //Maneja cualquier excepción que pueda ocurrir durante la transacción.
                 if (transaction != null) {
                     transaction.rollback();
                 }
@@ -52,11 +71,21 @@ public class ItemDAO implements DAO<Item> {
         }
     }
 
+    /**
+     * Actualiza un ítem en la Base de Datos.
+     *
+     * @param data El ítem que se desea actualizar en la Base de Datos.
+     */
     @Override
     public void update(Item data) {
-
+        //Do nothing.
     }
 
+    /**
+     * Elimina un ítem de la Base de Datos.
+     *
+     * @param data El ítem que se desea eliminar de la Base de Datos.
+     */
     @Override
     public void delete(Item data) {
         HibernateUtil.getSessionFactory().inTransaction(session -> {
