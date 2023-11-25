@@ -164,36 +164,10 @@ public class PedidosUsuarioController implements Initializable {
         //Obtiene la lista de pedidos del usuario actual y la asigna a la lista Observable.
         observableList.setAll(Sesion.getUsuario().getPedidos());
 
-        //Recorre cada pedido en la lista Observable.
-        for (Pedido pedido : observableList) {
-            //Calcula el total del pedido y lo establece en el pedido actual.
-            Double totalPedido = calcularTotalPedido(pedido);
-            pedido.setTotal(totalPedido);
-        }
-
         //Establece la lista Observable como los datos a mostrar en la tabla.
         tvPedidos.setItems(observableList);
     }
 
-    /**
-     * Calcula el total del pedido basado en la cantidad de cada producto y su precio.
-     *
-     * @param pedido El pedido del cual se calculará el total.
-     * @return El total del pedido, calculado como la suma del precio de cada producto multiplicado por su cantidad.
-     */
-    private Double calcularTotalPedido(Pedido pedido) {
-        //Inicializa la variable total como 0.0 para almacenar el total del pedido.
-        Double total  = 0.0;
-
-        //Itera a través de los items del pedido para calcular el total.
-        for (Item item : pedido.getItems()){
-
-            //Obtiene el precio del producto y lo multiplica por la cantidad, sumando al total.
-            total += item.getProducto().getPrecio() * item.getCantidad();
-        }
-        //Retorna el total calculado del pedido.
-        return total;
-    }
 
     /**
      * Método para cerrar la sesión actual y cargar la pantalla de inicio de sesión.
@@ -288,7 +262,6 @@ public class PedidosUsuarioController implements Initializable {
      */
     @FXML
     public void eliminar(ActionEvent actionEvent) {
-
         //Se coge el pedido seleccionado.
         Pedido pedidoSeleccionado = tvPedidos.getSelectionModel().getSelectedItem();
 

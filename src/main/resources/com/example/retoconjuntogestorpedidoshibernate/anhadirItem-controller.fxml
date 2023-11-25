@@ -35,14 +35,23 @@
       </MenuBar>
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
          <top>
-            <Label id="labelAnhadir" text="Añada un Item al pedido:" textAlignment="CENTER" BorderPane.alignment="CENTER">
-               <font>
-                  <Font size="18.0" />
-               </font>
+            <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                <BorderPane.margin>
                   <Insets top="10.0" />
                </BorderPane.margin>
-            </Label>
+               <children>
+                  <Label id="labelAnhadir" text="Añada un Item al pedido:" textAlignment="CENTER">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Label id="labelAnhadir" fx:id="lbInfoCantidad">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
          </top>
          <center>
             <GridPane BorderPane.alignment="CENTER">
@@ -63,7 +72,10 @@
                   <VBox alignment="CENTER" GridPane.columnIndex="1">
                      <children>
                         <Label id="labelSeleccionProducto" text="Seleccione un producto:" />
-                        <ComboBox fx:id="comboProducto" prefWidth="150.0" />
+                        <ComboBox fx:id="comboProducto" prefWidth="150.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin></ComboBox>
                      </children>
                   </VBox>
                </children>
@@ -72,7 +84,7 @@
          <bottom>
             <Button mnemonicParsing="false" onAction="#aceptar" text="Aceptar" BorderPane.alignment="CENTER">
                <BorderPane.margin>
-                  <Insets bottom="10.0" />
+                  <Insets bottom="20.0" />
                </BorderPane.margin>
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">

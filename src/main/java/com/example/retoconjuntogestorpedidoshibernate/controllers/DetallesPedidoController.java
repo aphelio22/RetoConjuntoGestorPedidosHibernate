@@ -6,8 +6,6 @@ import com.example.retoconjuntogestorpedidoshibernate.domain.item.Item;
 import com.example.retoconjuntogestorpedidoshibernate.domain.item.ItemDAO;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.Pedido;
 import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
-import com.example.retoconjuntogestorpedidoshibernate.domain.producto.Producto;
-import jakarta.persistence.Id;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -113,6 +111,10 @@ public class DetallesPedidoController implements Initializable {
 
         //Se establece el label de bienvenida de la ventana.
         lbPrueba.setText("Items del pedido: " + Sesion.getPedido().getCodigo_pedido());
+
+        //Actualiza el total del pedido después de agregar el item.
+        actualizarPedido();
+
     }
 
     /**
@@ -192,12 +194,58 @@ public class DetallesPedidoController implements Initializable {
             if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 itemDAO.delete(itemSeleccionado);
                 observableList.remove(itemSeleccionado);
+
+                //Calcula el nuevo total del pedido y lo actualiza en la Base de Datos.
+                Pedido pedidoActual = Sesion.getPedido();
+                Double nuevoTotal = calcularTotalPedido(pedidoActual) - (itemSeleccionado.getProducto().getPrecio() * itemSeleccionado.getCantidad()) ;
+                System.out.println(nuevoTotal);
+                pedidoActual.setTotal(nuevoTotal);
+
+                //Actualiza el total del pedido en la Base de Datos
+                PedidoDAO pedidoDAO = new PedidoDAO();
+                pedidoDAO.update(pedidoActual);
             }
         } else {
             //Muestra un mensaje de error o advertencia al usuario si no se ha seleccionado ningún pedido para eliminar.
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setContentText("Por favor, selecciona un pedido para eliminar.");
+            alert.setContentText("Por favor, selecciona un item para eliminar.");
             alert.showAndWait();
+        }
+    }
+
+    /**
+     * Calcula el total del pedido basado en la cantidad de cada producto y su precio.
+     *
+     * @param pedido El pedido del cual se calculará el total.
+     * @return El total del pedido, calculado como la suma del precio de cada producto multiplicado por su cantidad.
+     */
+    private Double calcularTotalPedido(Pedido pedido) {
+        //Inicializa la variable total como 0.0 para almacenar el total del pedido.
+        Double total  = 0.0;
+
+        //Itera a través de los items del pedido para calcular el total.
+        for (Item item : pedido.getItems()){
+
+            //Obtiene el precio del producto y lo multiplica por la cantidad, sumando al total.
+            total += item.getProducto().getPrecio() * item.getCantidad();
+        }
+        //Retorna el total calculado del pedido.
+        return total;
+    }
+
+    /**
+     * Método que actualiza el pedido en la Base de Datos después de agregar o eliminar un item.
+     */
+    private void actualizarPedido() {
+        Pedido pedidoActual = Sesion.getPedido();
+        Double nuevoTotal = calcularTotalPedido(pedidoActual);
+        pedidoActual.setTotal(nuevoTotal);
+
+        try {
+            PedidoDAO pedidoDAO = new PedidoDAO();
+            pedidoDAO.update(pedidoActual);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

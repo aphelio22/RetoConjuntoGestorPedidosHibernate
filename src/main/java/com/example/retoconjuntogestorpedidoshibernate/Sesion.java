@@ -37,32 +37,18 @@ public class Sesion {
     @Setter
     private static Pedido pedido;
 
+    /**
+     * Item en la sesión.
+     */
     @Setter
     @Getter
     private static Item item;
 
+    /**
+     * Producto en la sesión.
+     */
     @Getter
     @Setter
     private static Producto producto;
 
-    /**
-     * Lista de pedidos en la sesión.
-     */
-    @Getter
-    @Setter
-    private static ArrayList<Pedido> pedidos = new ArrayList<>();
-
-    /**
-     * Lista de productos en la sesión.
-     */
-    @Getter
-    @Setter
-    private static ArrayList<Producto> productos = new ArrayList<>();
-
-    /**
-     * Lista de items en la sesión.
-     */
-    @Getter
-    @Setter
-    private static ArrayList<Item> items = new ArrayList<>();
 }
