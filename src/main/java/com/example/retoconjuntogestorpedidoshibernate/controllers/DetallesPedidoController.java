@@ -9,12 +9,31 @@ import com.example.retoconjuntogestorpedidoshibernate.domain.pedido.PedidoDAO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import net.sf.jasperreports.swing.JRViewer;
+import net.sf.jasperreports.view.JasperViewer;
 
+import javax.swing.*;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 /**
@@ -247,5 +266,49 @@ public class DetallesPedidoController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void visualizarPedido(ActionEvent actionEvent) {
+        String codigo_pedido = Sesion.getPedido().getCodigo_pedido();
+        Stage primaryStage = new Stage();
+        System.out.println(codigo_pedido);
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/RetoDos", "root", "Enterprise1701Voyager74656");
+
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("cod_pedido", codigo_pedido);
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport("reportePedido.jasper", hashMap, connection);
+
+            SwingNode swingNode = new SwingNode();
+            createSwingContent(swingNode, jasperPrint);
+
+            StackPane root = new StackPane();
+            root.getChildren().add(swingNode);
+
+            Scene scene = new Scene(root, 800, 600);
+
+            primaryStage.getIcons().add(new Image("C:\\Users\\jrgal\\IdeaProjects\\RetoConjuntoGestorPedidosHibernate\\src\\main\\resources\\images\\gatitoAmazonasFelizIconoApp.png", 100, 100, true, true));
+            primaryStage.setTitle("Detalles Pedido");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+            JRPdfExporter exp = new JRPdfExporter();
+            exp.setExporterInput(new SimpleExporterInput(jasperPrint));
+            exp.setExporterOutput(new SimpleOutputStreamExporterOutput("pedido.pdf"));
+            exp.setConfiguration(new SimplePdfExporterConfiguration());
+            exp.exportReport();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (JRException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void createSwingContent(final SwingNode swingNode, JasperPrint jasperPrint) {
+        SwingUtilities.invokeLater(() -> {
+            JRViewer viewer = new JRViewer(jasperPrint);
+            swingNode.setContent(viewer);
+        });
     }
 }

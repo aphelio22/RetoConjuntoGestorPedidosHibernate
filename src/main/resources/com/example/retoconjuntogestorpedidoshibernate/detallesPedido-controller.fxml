@@ -70,7 +70,7 @@
                   <Insets bottom="10.0" />
                </BorderPane.margin>
                <children>
-                  <Button mnemonicParsing="false" onAction="#anhadirItem" text="Añadir">
+                  <Button mnemonicParsing="false" onAction="#anhadirItem" prefWidth="125.0" text="Añadir">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
@@ -82,14 +82,26 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Button mnemonicParsing="false" onAction="#eliminarItem" text="Eliminar">
+                  <Button mnemonicParsing="false" onAction="#eliminarItem" prefHeight="40.0" prefWidth="125.0" text="Eliminar">
                      <HBox.margin>
-                        <Insets left="10.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                      <graphic>
                         <ImageView fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../../../images/borrar.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#visualizarPedido" prefHeight="40.0" prefWidth="125.0" text="Descargar">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../../images/descargando.png" />
                            </image>
                         </ImageView>
                      </graphic>

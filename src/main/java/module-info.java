@@ -7,6 +7,8 @@ module com.example.retoconjuntogestorpedidoshibernate {
     requires org.hibernate.orm.core;
     requires java.naming;
     requires java.sql;
+    requires javafx.swing;
+    requires jasperreports;
 
     opens com.example.retoconjuntogestorpedidoshibernate.domain.usuario;
     opens com.example.retoconjuntogestorpedidoshibernate.domain.item;
